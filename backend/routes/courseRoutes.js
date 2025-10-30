@@ -31,22 +31,15 @@ const upload = multer({ storage: storage, fileFilter: fileFilter, limits: { file
 // --- End Multer Config ---
 
 // --- Routes ---
-router.get('/', courseController.getAllCourses); // Public
-router.get('/:id', auth, courseController.getCourseById); // Requires auth
-
-// Create Course (Admin only, accepts single image)
+router.get('/', courseController.getAllCourses);
+router.get('/:id', auth, courseController.getCourseById);
 router.post('/', auth, authorize(['admin']), upload.single('courseImage'), courseController.createCourse);
-
-// --- UPDATE Course Route (Admin/Instructor, accepts single image) ---
 router.put('/:id', auth, authorize(['admin', 'instructor']), upload.single('courseImage'), courseController.updateCourse);
 
 // --- DELETE Course Route (Admin only) ---
 router.delete('/:id', auth, authorize(['admin']), courseController.deleteCourse);
 
-// Enroll Student (Admin/Instructor only)
 router.put('/:id/enroll', auth, authorize(['admin', 'instructor']), courseController.enrollStudent);
-
-// Add Modules (Admin/Instructor only, accepts multiple PDFs/Videos)
 router.post('/:id/modules', auth, authorize(['admin', 'instructor']), upload.array('resources'), courseController.addModule);
 
 // --- Module Quiz Routes ---

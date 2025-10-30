@@ -2,8 +2,8 @@
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
-import Register from "./components/Register";
-import Login from "./components/Login";
+import Register from "./components/Register"; // Import Register component
+import Login from "./components/Login";     // Import Login component
 import Dashboard from "./components/Dashboard";
 import CourseDetail from "./components/CourseDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -17,10 +17,8 @@ function App() {
   return (
     <Router>
       {/* --- Navbar --- */}
-      {/* This element will become sticky */}
       <nav className="navbar">
         <Link to={isAuthenticated ? "/dashboard" : "/login"} style={{textDecoration: 'none'}}>
-          {/* Platform Title */}
           <h2>Knowledge Delivery Platform</h2>
         </Link>
         <div className="nav-links">
@@ -37,8 +35,7 @@ function App() {
         </div>
       </nav>
 
-      {/* --- Main Content Area --- */}
-      {/* The Routes define which component renders below the sticky navbar */}
+      {/* --- Route Definitions --- */}
       <Routes>
         {/* Public Routes: Accessible when logged out */}
         <Route

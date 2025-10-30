@@ -1,43 +1,43 @@
 /* frontend/src/components/ProfileDropdown.css */
+/* Styles for the advanced, multi-section dropdown */
 
 .profile-dropdown-wrapper {
   position: relative;
-  z-index: 50;
+  z-index: 1001; /* Ensure it's above the sticky navbar (which is 1000) */
 }
 
 .profile-avatar-trigger {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: var(--primary);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
   font-family: var(--font-heading);
   cursor: pointer;
-  border: 2px solid var(--primary-light);
+  border: none;
   transition: all 0.2s ease;
 }
-
 .profile-avatar-trigger:hover {
   transform: scale(1.05);
-  box-shadow: var(--shadow-md);
+  filter: brightness(1.1);
 }
 
+/* The main dropdown menu */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + 12px); /* 12px space from the avatar */
   right: 0;
-  width: 280px;
+  width: 280px; /* Wider menu */
   background: var(--card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
+  border-radius: 8px; /* Use theme's border radius */
+  box-shadow: var(--shadow-lg); /* Use theme's shadow */
   border: 1px solid var(--border);
   overflow: hidden;
-  /* Start hidden, toggled with 'active' class */
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -50,90 +50,94 @@
   transform: translateY(0);
 }
 
+/* --- Dropdown Header --- */
 .dropdown-header {
-  padding: 1rem 1.25rem;
+  padding: var(--space-4) var(--space-5); /* 1rem 1.25rem */
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
+  gap: var(--space-3); /* 0.75rem */
 }
 
 .dropdown-header-avatar {
-  width: 48px;
+  width: 48px; /* Larger avatar */
   height: 48px;
   border-radius: 50%;
-  background: var(--bg);
+  background: var(--primary-light);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1.25rem;
-  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .dropdown-header-info {
-  overflow: hidden;
+  overflow: hidden; /* Prevent long text from breaking layout */
 }
 
 .dropdown-header-info strong {
   display: block;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* ... if too long */
 }
 
 .dropdown-header-info span {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* --- Dropdown Sections --- */
 .dropdown-section {
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border);
+  padding: var(--space-2) 0; /* 0.5rem top/bottom */
+  border-top: 1px solid var(--border); /* Separator line */
 }
-.dropdown-section:last-of-type {
-  border-bottom: none;
+.dropdown-section:first-of-type {
+  border-top: none; /* No top border on the very first section */
 }
 
+/* --- Dropdown Items (Links) --- */
 .dropdown-item {
   display: block;
-  padding: 0.75rem 1.25rem;
+  padding: var(--space-3) var(--space-5); /* 0.75rem 1.25rem */
   color: var(--text);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   text-decoration: none;
   transition: background 0.2s ease, color 0.2s ease;
 }
-
 .dropdown-item:hover {
-  background: var(--bg);
+  background: var(--bg); /* Use theme's light background on hover */
   color: var(--primary);
   text-decoration: none;
 }
 
+/* --- Dropdown Logout Button --- */
 .dropdown-logout {
   display: block;
   width: 100%;
   text-align: left;
   background: none;
   border: none;
-  padding: 0.75rem 1.25rem;
-  color: var(--error);
+  padding: var(--space-3) var(--space-5);
+  color: var(--error); /* Use error color */
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  margin-top: 0;
+  margin: 0; /* Reset button margin */
   border-radius: 0;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 .dropdown-logout:hover {
   background: var(--error-light);
-  transform: none;
-  box-shadow: none;
+  color: var(--error);
+  transform: none; /* Override default button hover */
+  box-shadow: none; /* Override default button hover */
 }

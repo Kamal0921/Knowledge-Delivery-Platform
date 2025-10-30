@@ -1,107 +1,149 @@
+// frontend/src/components/CreateCourse.jsx
+
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
+// Define categories for consistency
+const CATEGORY_OPTIONS = ['Programming', 'Design', 'Business', 'Marketing', 'General'];
+
 function CreateCourse({ onCreated }) {
-  const { authHeader } = useAuth();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [level, setLevel] = useState('');
+  const [category, setCategory] = useState(CATEGORY_OPTIONS[0]); // Default to first category
+  const [courseImage, setCourseImage] = useState(null);
   const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { authHeader } = useAuth();
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > 5 * 1024 * 1024) { // 5MB limit check
+        setStatus({ type: 'error', text: 'Image file is too large (Max 5MB).' });
+        setCourseImage(null);
+        e.target.value = null;
+        return;
+    }
+    setCourseImage(file);
+    if(status && status.type === 'error') setStatus(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus(null);
-    const body = { title, description, category, difficulty: level };
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('category', category); // --- ADD CATEGORY ---
+    if (courseImage) {
+      formData.append('courseImage', courseImage);
+    }
+
     try {
+      const headers = authHeader();
+      delete headers['Content-Type']; 
+
       const response = await fetch('http://localhost:5000/api/courses', {
         method: 'POST',
-        headers: {
-          ...authHeader,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
+        headers: headers,
+        body: formData
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Creation failed');
-      setStatus('Course created!');
-      if (onCreated) onCreated(data);
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `Failed to create course (${response.status})`);
+      }
+
+      // Reset form
       setTitle('');
       setDescription('');
-      setCategory('');
-      setLevel('');
+      setCategory(CATEGORY_OPTIONS[0]); // Reset category
+      setCourseImage(null);
+      e.target.reset();
+      setStatus({ type: 'success', text: 'Course created successfully!' });
+      if (onCreated) onCreated(data);
+
     } catch (err) {
-      setStatus(`Error: ${err.message}`);
+      setStatus({ type: 'error', text: err.message || 'Error creating course' });
+      console.error("Create course error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-card">
+    // This div is styled by .form-card in index.css
+    <div>
       <h3>Create New Course</h3>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="create-title">Course Title</label>
+        {/* Input Group for Title */}
+        <div className="form-group">
+          <label htmlFor="courseTitleInput">Course Title</label>
           <input
-            id="create-title"
+            id="courseTitleInput"
             type="text"
+            placeholder="e.g., Introduction to React"
             value={title}
-            onChange={e => setTitle(e.target.value)}
-            className="form-input"
+            onChange={(e) => setTitle(e.target.value)}
             required
+            disabled={loading}
           />
         </div>
-        <div>
-          <label htmlFor="create-desc">Description</label>
-          <textarea
-            id="create-desc"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="form-input"
-            rows={4}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="create-category">Category</label>
+
+        {/* --- ADD CATEGORY SELECTOR --- */}
+        <div className="form-group">
+          <label htmlFor="courseCategoryInput">Category</label>
           <select
-            id="create-category"
+            id="courseCategoryInput"
             value={category}
-            onChange={e => setCategory(e.target.value)}
-            className="form-input"
-            required
+            onChange={(e) => setCategory(e.target.value)}
+            disabled={loading}
           >
-            <option value="">Select Category</option>
-            <option value="Programming">Programming</option>
-            <option value="Web">Web Development</option>
-            <option value="Data Science">Data Science</option>
-            <option value="Cloud">Cloud Computing</option>
-            <option value="Artificial Intelligence">Artificial Intelligence</option>
-            <option value="Embedded Systems">Embedded Systems</option>
-            <option value="Design">Design</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Mobile Development">Mobile Development</option>
+            {CATEGORY_OPTIONS.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="create-level">Level</label>
-          <select
-            id="create-level"
-            value={level}
-            onChange={e => setLevel(e.target.value)}
-            className="form-input"
-            required
-          >
-            <option value="">Select Level</option>
-            <option value="Beginner">Beginner</option>
-            <option value="Intermediate">Intermediate</option>
-            <option value="Advanced">Advanced</option>
-          </select>
+        {/* --- END ADD --- */}
+
+        {/* Input Group for Description */}
+        <div className="form-group">
+          <label htmlFor="courseDescriptionInput">Course Description</label>
+          <textarea
+            id="courseDescriptionInput"
+            placeholder="Describe what the course is about..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={loading}
+            rows={4}
+          />
         </div>
-        <div style={{ marginTop: '1rem' }}>
-          <button type="submit" className="btn-primary">Create Course</button>
+
+        {/* Input Group for File Upload */}
+        <div className="form-group">
+            <label htmlFor="courseImageInput">
+                Course Image (Optional, JPG/PNG/GIF, Max 5MB)
+            </label>
+            <input
+              id="courseImageInput"
+              type="file"
+              accept="image/png, image/jpeg, image/gif"
+              onChange={handleFileChange}
+              disabled={loading}
+            />
+            {courseImage && <span style={{fontSize: '0.8rem', color: 'var(--muted)', display: 'block', marginTop: '0.25rem'}}>Selected: {courseImage.name}</span>}
         </div>
-        {status && <p style={{ marginTop: 10, color: status.startsWith('Error') ? 'red' : 'green' }}>{status}</p>}
+
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating...' : 'Create Course'}
+        </button>
       </form>
+      {status && (
+        <p className={`auth-message ${status.type === 'error' ? 'error' : 'success'}`} style={{ marginTop: '1rem' }}>
+          {status.text}
+        </p>
+      )}
     </div>
   );
 }

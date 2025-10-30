@@ -1,33 +1,28 @@
 // frontend/src/components/ProfileDropdown.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './ProfileDropdown.css'; // Import our new CSS
+import './ProfileDropdown.css'; // Import the new CSS
 
 function ProfileDropdown() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   // Helper to get initials from name or email
- const getInitials = () => {
+  const getInitials = () => {
     if (!user) return '?';
-
-    // 1. Try to use user.name
     if (user.name && user.name.length > 0) {
       const parts = user.name.split(' ');
       const first = parts[0][0] || '';
       const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
       return (first + last).toUpperCase();
     }
-    
-    // 2. Fallback to user.email
     if (user.email && user.email.length > 0) {
       return (user.email[0] || '?').toUpperCase();
     }
-    
-    // 3. Absolute fallback
     return '?';
   };
 
@@ -38,21 +33,26 @@ function ProfileDropdown() {
         setIsOpen(false);
       }
     }
-    // Bind the event listener
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      // Unbind the event listener on clean-up
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
+
+  // Handle logout
+  const handleLogout = () => {
+    setIsOpen(false); // Close dropdown
+    logout(); // Call logout from context
+    navigate('/login'); // Redirect to login page
+  };
 
   if (!user) return null; // Don't render if not logged in
 
   return (
     <div className="profile-dropdown-wrapper" ref={dropdownRef}>
       {/* 1. The Avatar Trigger */}
-      <div 
-        className="profile-avatar-trigger" 
+      <div
+        className="profile-avatar-trigger"
         onClick={() => setIsOpen(!isOpen)}
         title="Account"
       >
@@ -61,8 +61,8 @@ function ProfileDropdown() {
 
       {/* 2. The Dropdown Menu */}
       <div className={`dropdown-menu ${isOpen ? 'active' : ''}`}>
-        
-        {/* Header with user info */}
+
+        {/* --- Header with user info --- */}
         <div className="dropdown-header">
           <div className="dropdown-header-avatar">{getInitials()}</div>
           <div className="dropdown-header-info">
@@ -70,46 +70,37 @@ function ProfileDropdown() {
             <span>{user.email || 'No email'}</span>
           </div>
         </div>
-        
-        {/* Role-Based Links */}
+
+        {/* --- Role-Based Links --- */}
         <div className="dropdown-section">
           {user.role === 'student' && (
             <Link to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}>
               My Learning
             </Link>
           )}
-          {user.role === 'instructor' && (
+          {(user.role === 'admin' || user.role === 'instructor') && (
             <Link to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}>
-              Instructor Dashboard
+              Dashboard
             </Link>
           )}
-          {user.role === 'admin' && (
-            <>
-              <Link to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}>
-                Admin Dashboard
-              </Link>
-              {/* This link already exists in CourseList, but good to have here too */}
-              <Link to="/dashboard" className="dropdown-item" onClick={() => setIsOpen(false)}> 
-                Create Course
-              </Link>
-            </>
-          )}
+          {/* Add other links like "My Cart" or "Wishlist" here if you build them */}
         </div>
 
-        {/* General Links for All */}
+        {/* --- Account Section --- */}
         <div className="dropdown-section">
           <Link to="/profile" className="dropdown-item" onClick={() => setIsOpen(false)}>
             Account Settings
           </Link>
-          {/* Add more links here like "Purchase History" if you build them */}
+          {/* Add other links like "Payment Methods" here if you build them */}
         </div>
-        
-        {/* Logout Button */}
+
+        {/* --- Logout Button --- */}
         <div className="dropdown-section">
-          <button onClick={logout} className="dropdown-logout">
+          <button onClick={handleLogout} className="dropdown-logout">
             Log out
           </button>
         </div>
+
       </div>
     </div>
   );
