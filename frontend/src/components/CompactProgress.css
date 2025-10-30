@@ -1,0 +1,51 @@
+/* frontend/src/components/CompactProgress.css */
+
+.compact-progress-container {
+  margin-top: 1rem; /* Space above the bar */
+  margin-bottom: 0.5rem; /* Space below the bar */
+}
+
+.compact-progress-label {
+  display: block; /* Or inline-block if needed */
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem; /* Space between label and bar */
+}
+
+.compact-progress-bar-background {
+  width: 100%;
+  height: 8px; /* Make the bar thinner */
+  background: var(--border); /* Lighter background */
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.compact-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out;
+  /* Add a subtle shine effect */
+  position: relative;
+}
+/* Optional shine effect */
+.compact-progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+}
+
+
+.compact-progress-percentage {
+  display: block; /* Or inline-block */
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0.35rem; /* Space between bar and percentage text */
+  text-align: right; /* Align percentage to the right */
+}

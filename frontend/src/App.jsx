@@ -4,42 +4,65 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Dashboard from "./components/Dashboard"; // Import Dashboard
-import CourseDetail from "./components/CourseDetail"; // Import CourseDetail
-import ProtectedRoute from "./components/ProtectedRoute"; // Import ProtectedRoute
+import Dashboard from "./components/Dashboard";
+import CourseDetail from "./components/CourseDetail";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
-import "./App.css";
+import ProfileDropdown from "./components/ProfileDropdown";
+import ProfilePage from "./components/ProfilePage"; // Assuming you have this
 
 function App() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth(); // Get authentication state
 
   return (
     <Router>
+      {/* --- Navbar --- */}
+      {/* This element will become sticky */}
       <nav className="navbar">
-        <h2>Knowledge Delivery Platform</h2>
+        <Link to={isAuthenticated ? "/dashboard" : "/login"} style={{textDecoration: 'none'}}>
+          {/* Platform Title */}
+          <h2>Knowledge Delivery Platform</h2>
+        </Link>
         <div className="nav-links">
           {!isAuthenticated ? (
             <>
+              {/* Show Register and Login links only when logged out */}
               <Link to="/register">Register</Link>
               <Link to="/login">Login</Link>
             </>
           ) : (
-            <button onClick={logout} className="logout-btn">Logout</button>
+            // Show Profile Dropdown when logged in
+            <ProfileDropdown />
           )}
         </div>
       </nav>
 
+      {/* --- Main Content Area --- */}
+      {/* The Routes define which component renders below the sticky navbar */}
       <Routes>
-        <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
-        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-        
-        {/* Protected Routes */}
+        {/* Public Routes: Accessible when logged out */}
+        <Route
+          path="/register"
+          element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" replace />}
+        />
+        <Route
+          path="/login"
+          element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />}
+        />
+
+        {/* Protected Routes: Require authentication */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/course/:id" element={<CourseDetail />} /> 
+          <Route path="/course/:id" element={<CourseDetail />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          {/* Add other protected routes here */}
         </Route>
 
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
+        {/* Fallback Route: Redirects based on auth status */}
+        <Route
+          path="*"
+          element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
+        />
       </Routes>
     </Router>
   );

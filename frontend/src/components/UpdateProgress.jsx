@@ -1,46 +1,24 @@
 // frontend/src/components/UpdateProgress.jsx
 
-import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
+import './CompactProgress.css'; // <-- Import the new CSS
 
-function UpdateProgress({ courseId, initialProgress }) {
-  const [progress, setProgress] = useState(initialProgress);
-  const [message, setMessage] = useState('');
-  const { authHeader } = useAuth();
+// Display-only component using the new compact styles
+function UpdateProgress({ initialProgress }) {
 
-  const handleProgressChange = (e) => {
-    setProgress(e.target.value);
-  };
-
-  const handleSubmitProgress = async () => {
-    try {
-      // Per SRS, progress is a query param [cite: 80]
-      const response = await fetch(
-        `http://localhost:5000/api/courses/${courseId}/progress?progress=${progress}`, 
-        {
-          method: 'PUT',
-          headers: authHeader(),
-        }
-      );
-      if (!response.ok) throw new Error('Failed to update progress.');
-      setMessage('Progress updated successfully!');
-    } catch (err) {
-      setMessage(`Error: ${err.message}`);
-    }
-  };
+  const progress = initialProgress || 0;
 
   return (
-    <div className="progress-updater">
-      <h4>Your Progress: {progress}%</h4>
-      <input
-        type="range"
-        min="0"
-        max="100"
-        value={progress}
-        onChange={handleProgressChange}
-      />
-      <button onClick={handleSubmitProgress}>Update Progress</button>
-      {message && <p>{message}</p>}
+    <div className="compact-progress-container">
+      <span className="compact-progress-label">Course Progress</span>
+      <div className="compact-progress-bar-background">
+        
+        <div
+          className="compact-progress-bar-fill"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <span className="compact-progress-percentage">{progress}% Complete</span>
     </div>
   );
 }

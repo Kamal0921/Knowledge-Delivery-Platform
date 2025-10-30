@@ -1,0 +1,89 @@
+/* frontend/src/components/Roster.css */
+
+.roster-container {
+  margin-top: 1.5rem;
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-sm);
+  border-radius: 8px;
+  overflow: hidden; /* Important for border-radius */
+  border: 1px solid var(--border);
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.roster-table th {
+  background-color: var(--bg);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.roster-table td:nth-child(1) { /* Name */
+  font-weight: 500;
+  color: var(--text);
+  min-width: 150px;
+}
+
+.roster-table td:nth-child(2) { /* Email */
+  color: var(--muted);
+  font-size: 0.9rem;
+  min-width: 200px;
+}
+
+.roster-table td:nth-child(3) { /* Progress Display */
+  width: 150px; /* Adjust width as needed */
+  min-width: 120px;
+}
+
+
+.roster-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.roster-table tbody tr:hover {
+  background-color: var(--bg);
+}
+
+/* --- Styles for the Progress Bar Display --- */
+.roster-progress-bar-container {
+  width: 100%;
+  height: 20px; /* Slightly smaller height */
+  background: var(--border);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.roster-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  transition: width 0.3s ease;
+}
+
+/* Text inside the progress bar */
+.roster-progress-bar-container span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #000;
+  /* Blend mode for readability */
+  mix-blend-mode: difference;
+  filter: invert(1) grayscale(1) brightness(1.5);
+  padding: 0 5px; /* Prevent text touching edges */
+  line-height: 20px; /* Center text vertically */
+}

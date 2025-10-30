@@ -1,7 +1,12 @@
+// backend/controllers/userController.js
+
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userService = require('../services/userService');
+
+// Use this secret key for both creating and verifying tokens
+const JWT_SECRET = 'my_super_secret_key_123';
 
 exports.register = async (req, res) => {
   try {
@@ -18,8 +23,18 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const user = await userService.loginUser(email, password);
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'default_jwt_secret', { expiresIn: '1d' });
-    res.json({ message: 'Login successful', token, user: { id: user._id, email: user.email, role: user.role } });
+    // Create the token using the new hardcoded secret
+    const token = jwt.sign(
+      { id: user._id, role: user.role, name: user.name, email: user.email }, 
+      JWT_SECRET, // Use our defined secret
+      { expiresIn: '1d' }
+    );
+    
+    res.json({ 
+      message: 'Login successful', 
+      token, 
+      user: { id: user._id, email: user.email, role: user.role } 
+    });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -27,6 +42,7 @@ exports.login = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
+    // req.user comes from the authMiddleware after a successful token verification
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);

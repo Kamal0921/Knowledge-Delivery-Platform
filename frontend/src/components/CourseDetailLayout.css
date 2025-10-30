@@ -1,0 +1,142 @@
+/* frontend/src/components/CourseDetailLayout.css */
+
+.course-detail-layout {
+  /* Inherits from page-container */
+}
+
+.course-content-wrapper {
+  display: flex;
+  flex-direction: row; /* Default, explicitly stated */
+  gap: 2rem; /* Space between sidebar and content */
+  margin-top: 2rem;
+  align-items: flex-start; /* Align items to the top */
+}
+
+.module-sidebar {
+  flex: 0 0 280px; /* Fixed width sidebar, adjust as needed */
+  background: var(--card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  height: fit-content; /* Only as tall as needed, stays sticky potentially */
+  position: sticky; /* Make sidebar stick on scroll */
+  top: 2rem; /* Adjust top spacing based on your navbar height + desired gap */
+}
+
+.module-sidebar h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--primary);
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.module-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 60vh; /* Limit height and make scrollable if too many modules */
+  overflow-y: auto;
+}
+
+.module-sidebar li button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem; /* Slightly larger padding */
+  margin: 0.25rem 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Add ellipsis if title is too long */
+}
+
+.module-sidebar li button:hover {
+  background: var(--bg);
+  color: var(--primary);
+}
+
+/* Style for the currently active module button */
+.module-sidebar li.active button {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.module-content-area {
+  flex: 1; /* Takes remaining space */
+  min-width: 0; /* Prevents overflow issues with flexbox */
+}
+
+/* Style for the currently displayed module */
+.module-item-detailed {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem; /* Space below the displayed module */
+}
+
+.module-item-detailed h2 {
+   margin-top: 0;
+   font-size: 1.75rem;
+   margin-bottom: 1rem;
+   color: var(--primary);
+}
+.module-item-detailed h4 { /* Sub-headings perhaps */
+   margin-top: 1.5rem;
+   font-size: 1.1rem;
+   color: var(--text);
+   margin-bottom: 0.5rem; /* Space before resource list */
+}
+.module-item-detailed p {
+   line-height: 1.7;
+   color: var(--muted);
+   margin-bottom: 1rem; /* Consistent spacing */
+}
+
+.module-item-detailed ul { /* For resources */
+  padding-left: 20px;
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+}
+.module-item-detailed ul li {
+  margin-bottom: 0.5rem;
+}
+.module-item-detailed a { /* Resource links */
+  word-break: break-all;
+  font-size: 0.9rem;
+}
+
+/* Adjustments for Quiz/Manager inside module-item-detailed */
+.module-item-detailed .module-quiz-controls {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .course-content-wrapper {
+    flex-direction: column; /* Stack sidebar and content */
+  }
+  .module-sidebar {
+    width: 100%; /* Full width on smaller screens */
+    position: static; /* Remove sticky positioning */
+    margin-bottom: 2rem;
+    flex: 0 0 auto; /* Reset flex property */
+  }
+  .module-sidebar ul {
+    max-height: none; /* Remove height limit */
+  }
+}

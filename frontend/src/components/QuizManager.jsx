@@ -1,119 +1,100 @@
-// frontend/src/components/QuizManager.jsx
-
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 
-// This is a sub-component for managing a single question
-function QuestionForm({ initialQuestion, onSave, onCancel }) {
+// props: initialQuestion (object), onSave (function), onCancel (function), onRemove (function|optional)
+export default function QuestionForm({
+  initialQuestion = { question: '', options: ['', '', '', ''], answer: '' },
+  onSave,
+  onCancel,
+  onRemove
+}) {
   const [question, setQuestion] = useState(initialQuestion.question);
-  const [options, setOptions] = useState(initialQuestion.options);
+  const [options, setOptions] = useState(
+    initialQuestion.options?.length === 4
+      ? initialQuestion.options
+      : ['', '', '', '']
+  );
   const [answer, setAnswer] = useState(initialQuestion.answer);
 
-  const handleOptionChange = (index, value) => {
+  const handleOptionChange = (idx, value) => {
     const newOptions = [...options];
-    newOptions[index] = value;
+    newOptions[idx] = value;
     setOptions(newOptions);
-  };
-
-  const handleSave = () => {
-    onSave({ question, options, answer });
-  };
-
-  return (
-    <div className="question-form">
-      <input
-        type="text"
-        placeholder="Question"
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      {options.map((opt, i) => (
-        <input
-          key={i}
-          type="text"
-          placeholder={`Option ${i + 1}`}
-          value={opt}
-          onChange={(e) => handleOptionChange(i, e.target.value)}
-        />
-      ))}
-      <select value={answer} onChange={(e) => setAnswer(e.target.value)}>
-        <option value="">Select Correct Answer</option>
-        {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
-      </select>
-      <button onClick={handleSave}>Save Question</button>
-      <button onClick={onCancel}>Cancel</button>
-    </div>
-  );
-}
-
-// Main Quiz Manager Component
-function QuizManager({ courseId, existingQuestions, onQuizUpdate }) {
-  const [questions, setQuestions] = useState(existingQuestions);
-  const [isAdding, setIsAdding] = useState(false);
-  const [message, setMessage] = useState('');
-  const { authHeader } = useAuth();
-
-  const handleAddNewQuestion = (newQuestion) => {
-    setQuestions([...questions, newQuestion]);
-    setIsAdding(false);
-  };
-
-  const handleRemoveQuestion = (index) => {
-    if (window.confirm('Are you sure you want to remove this question?')) {
-      setQuestions(questions.filter((_, i) => i !== index));
+    // If the correct answer is cleared, unset it
+    if (answer === options[idx] && value.trim() === '') {
+      setAnswer('');
     }
   };
 
-  const handleSaveQuiz = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}/quiz`, {
-        method: 'PUT',
-        headers: authHeader(),
-        body: JSON.stringify({ questions: questions }),
-      });
-      if (!response.ok) throw new Error('Failed to save quiz.');
-      setMessage('Quiz saved successfully!');
-      onQuizUpdate(); // Refresh parent component
-    } catch (err) {
-      setMessage(`Error: ${err.message}`);
+  const handleSave = (e) => {
+    e.preventDefault();
+    if (!question.trim() || options.some(opt => !opt.trim()) || !answer.trim()) {
+      alert('Please fill out all fields and select the correct answer.');
+      return;
     }
-  };
-
-  const newQuestionTemplate = {
-    question: '',
-    options: ['', '', '', ''],
-    answer: ''
+    if (!options.includes(answer)) {
+      alert('Correct answer must match one of the options.');
+      return;
+    }
+    onSave({
+      question: question.trim(),
+      options: options.map(opt => opt.trim()),
+      answer: answer.trim()
+    });
   };
 
   return (
-    <div className="quiz-manager">
-      <h4>Quiz Questions</h4>
-      {questions.map((q, i) => (
-        <div key={i} className="question-item">
-          <p>{i + 1}. {q.question} (Answer: {q.answer})</p>
-          <button onClick={() => handleRemoveQuestion(i)}>Remove</button>
+    <div className="form-card" style={{ maxWidth: 580, margin: '2rem auto' }}>
+      <h3>Add Quiz Question</h3>
+      <form onSubmit={handleSave}>
+        <div>
+          <label htmlFor="quiz-question">Question</label>
+          <input
+            id="quiz-question"
+            type="text"
+            placeholder="Enter your question"
+            value={question}
+            onChange={e => setQuestion(e.target.value)}
+            className="form-input"
+            required
+          />
         </div>
-      ))}
-
-      {isAdding ? (
-        <QuestionForm
-          initialQuestion={newQuestionTemplate}
-          onSave={handleAddNewQuestion}
-          onCancel={() => setIsAdding(false)}
-        />
-      ) : (
-        <button onClick={() => setIsAdding(true)}>Add New Question</button>
-      )}
-
-      <hr />
-      <button onClick={handleSaveQuiz} disabled={isAdding}>
-        Save Entire Quiz
-      </button>
-      {message && <p>{message}</p>}
+        {[0,1,2,3].map(idx => (
+          <div key={idx}>
+            <label htmlFor={`option-${idx}`}>{`Option ${idx + 1}`}</label>
+            <input
+              id={`option-${idx}`}
+              type="text"
+              placeholder={`Option ${idx + 1}`}
+              value={options[idx]}
+              onChange={e => handleOptionChange(idx, e.target.value)}
+              className="form-input"
+              required
+            />
+          </div>
+        ))}
+        <div>
+          <label htmlFor="correct-answer">Correct Answer</label>
+          <select
+            id="correct-answer"
+            value={answer}
+            onChange={e => setAnswer(e.target.value)}
+            className="form-input"
+            required
+          >
+            <option value="">Choose correct answer</option>
+            {options.map((opt, idx) =>
+              opt.trim() ? <option key={idx} value={opt}>{opt}</option> : null
+            )}
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
+          <button type="submit" className="btn-primary">Save Question</button>
+          <button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button>
+          {onRemove &&
+            <button type="button" className="btn-remove" onClick={onRemove}>Remove</button>
+          }
+        </div>
+      </form>
     </div>
   );
 }
-
-export default QuizManager;
